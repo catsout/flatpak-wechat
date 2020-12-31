@@ -62,7 +62,7 @@ modules:
         commands:
           - ln -fsn /app/etc/os-release /etc/os-release
           - ln -fsn /app/etc/lsb-release /etc/lsb-release
-          - exec /app/extra/lib/wechat/微信 "$@"
+          - exec zypak-wrapper /app/extra/lib/wechat/微信 "$@"
       - type: file
         path: os-release
       - type: file
