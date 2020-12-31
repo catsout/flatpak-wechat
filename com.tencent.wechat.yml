@@ -1,0 +1,77 @@
+app-id: com.tencent.wechat
+base: org.electronjs.Electron2.BaseApp
+base-version: '20.08'
+runtime: org.freedesktop.Platform
+runtime-version: '20.08'
+sdk: org.freedesktop.Sdk
+command: wechat.sh
+finish-args:
+  - --socket=pulseaudio
+  - --socket=fallback-x11
+  - --device=dri
+  - --share=ipc
+  - --share=network
+  - --persist=.pki
+modules:
+  - shared-modules/gtk2/gtk2.json
+  - name: libuosdevicea
+    buildsystem: simple
+    build-commands:
+      - ar x libuosdevicea.deb
+      - tar xf data.tar.xz
+      - install -D usr/lib/license/libuosdevicea.so /app/lib/license/libuosdevicea.so 
+      - rm -r usr libuosdevicea.deb control.tar.* data.tar.* debian-binary
+    sources:
+      - type: file
+        dest-filename: libuosdevicea.deb
+        only-arches: [aarch64]
+        url: "https://uos.deepin.cn/uos/pool/main/libu/libuosdevicea/libuosdevicea_1.0.0.0-1_arm64.deb"
+        sha256: c4ada06159b6918647902920f8e74e52809fd546b8a828b53f0e4ee0b9e89b3b
+      - type: file
+        dest-filename: libuosdevicea.deb
+        only-arches: [x86_64]
+        url: "https://uos.deepin.cn/uos/pool/main/libu/libuosdevicea/libuosdevicea_1.0.0.0-1_amd64.deb"
+        sha256: e8fd9d85aa51f0cab7a3abf8a3116999b9f78927036e5f2bba5531cb13a15743
+
+  - name: wechat
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 os-release /app/etc/os-release
+      - install -Dm644 lsb-release /app/etc/lsb-release
+      - install -D apply_extra /app/bin
+      - install -D wechat.sh /app/bin
+      - install -D /usr/bin/ar /app/bin
+      - ARCH_TRIPLE=$(gcc --print-multiarch) && cp /usr/lib/${ARCH_TRIPLE}/libbfd-*.so /app/lib
+    sources:
+      - type: script
+        dest-filename: apply_extra
+        commands:
+          - ar x wechat.deb
+          - tar xf data.tar.xz
+          - rm -r wechat.deb control.tar.* data.tar.* debian-binary
+          - sed -i "s/\x3A\x60\x66\x67\x3A\x79/\x3A\x74\x65\x65\x3A\x79/" usr/lib/wechat/resources/wcs.node
+          - sed -i "s/\x38\x62\x64\x65\x38\x7b\x7e\x75/\x38\x76\x67\x67\x38\x7b\x7e\x75/" usr/lib/wechat/resources/wcs.node
+          - mv usr/* .
+          - rmdir usr
+      - type: script
+        dest-filename: wechat.sh
+        commands:
+          - ln -fsn /app/etc/os-release /etc/os-release
+          - ln -fsn /app/etc/lsb-release /etc/lsb-release
+          - exec /app/extra/lib/wechat/微信 "$@"
+      - type: file
+        path: os-release
+      - type: file
+        path: lsb-release
+      - type: extra-data
+        filename: wechat.deb
+        only-arches: [aarch64]
+        url: "http://archive.kylinos.cn/kylin/partner/pool/wechat_2.0.0_arm64.deb"
+        sha256: 9ebe64eb6f942bf6c092e3f43058eb6f2259424cdfba6f926979bbff222c83bd
+        size: 31889372
+      - type: extra-data
+        filename: wechat.deb
+        only-arches: [x86_64]
+        url: "http://archive.kylinos.cn/kylin/partner/pool/wechat_2.0.0_amd64.deb"
+        sha256: 4cd12e4cf190d8b3250ce7388223828f86e18da23ac3ba1b39e4c85f41d5b3f0
+        size: 35383312
