@@ -4,7 +4,7 @@ base-version: '20.08'
 runtime: org.freedesktop.Platform
 runtime-version: '20.08'
 sdk: org.freedesktop.Sdk
-command: wechat.sh
+command: wechat
 finish-args:
   - --socket=pulseaudio
   - --socket=fallback-x11
@@ -39,7 +39,7 @@ modules:
       - install -Dm644 os-release /app/etc/os-release
       - install -Dm644 lsb-release /app/etc/lsb-release
       - install -D apply_extra /app/bin
-      - install -D wechat.sh /app/bin
+      - install -D wechat.sh /app/bin/wechat
       - install -D /usr/bin/ar /app/bin
       - ARCH_TRIPLE=$(gcc --print-multiarch) && cp /usr/lib/${ARCH_TRIPLE}/libbfd-*.so /app/lib
     sources:
@@ -53,6 +53,10 @@ modules:
           - sed -i "s/\x38\x62\x64\x65\x38\x7b\x7e\x75/\x38\x76\x67\x67\x38\x7b\x7e\x75/" usr/lib/wechat/resources/wcs.node
           - mv usr/* .
           - rmdir usr
+          - mkdir -p export/share
+          - mv share/applications/wechat.desktop share/applications/com.tencent.wechat.desktop
+          - mv share/applications export/share
+
       - type: script
         dest-filename: wechat.sh
         commands:
