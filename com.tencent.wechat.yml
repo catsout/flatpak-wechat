@@ -11,6 +11,9 @@ finish-args:
   - --device=dri
   - --share=ipc
   - --share=network
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-download
+  - --filesystem=xdg-pictures
   - --persist=.pki
 modules:
   - shared-modules/gtk2/gtk2.json
@@ -38,9 +41,10 @@ modules:
     build-commands:
       - install -Dm644 os-release /app/etc/os-release
       - install -Dm644 lsb-release /app/etc/lsb-release
-      - install -D apply_extra /app/bin
+      - install -D apply_extra /app/bin/
       - install -D wechat.sh /app/bin/wechat
-      - install -D /usr/bin/ar /app/bin
+      - install -D /usr/bin/desktop-file-edit -t /app/bin/
+      - install -D /usr/bin/ar /app/bin/
       - ARCH_TRIPLE=$(gcc --print-multiarch) && cp /usr/lib/${ARCH_TRIPLE}/libbfd-*.so /app/lib
     sources:
       - type: script
@@ -48,21 +52,22 @@ modules:
         commands:
           - ar x wechat.deb
           - tar xf data.tar.xz
-          - rm -r wechat.deb control.tar.* data.tar.* debian-binary
-          - sed -i "s/\x3A\x60\x66\x67\x3A\x79/\x3A\x74\x65\x65\x3A\x79/" usr/lib/wechat/resources/wcs.node
-          - sed -i "s/\x38\x62\x64\x65\x38\x7b\x7e\x75/\x38\x76\x67\x67\x38\x7b\x7e\x75/" usr/lib/wechat/resources/wcs.node
-          - mv usr/* .
-          - rmdir usr
+          - rm -r usr wechat.deb control.tar.* data.tar.* debian-binary
+          - app_dir=opt/apps/com.qq.weixin
+          - sed -i "s/\x3A\x60\x66\x67\x3A\x79/\x3A\x74\x65\x65\x3A\x79/" ${app_dir}/files/resources/wcs.node
+          - sed -i "s/\x38\x62\x64\x65\x38\x7b\x7e\x75/\x38\x76\x67\x67\x38\x7b\x7e\x75/" ${app_dir}/files/resources/wcs.node
+          - rename "wechat" "com.tencent.wechat" ${app_dir}/entries/icons/hicolor/*/*/wechat.png
+          - rename "qq.weixin" "tencent.wechat" ${app_dir}/entries/applications/*.desktop
+          - desktop-file-edit --set-key="Exec" --set-value="wechat" --set-icon="com.tencent.wechat" ${app_dir}/entries/applications/*.desktop
           - mkdir -p export/share
-          - mv share/applications/wechat.desktop share/applications/com.tencent.wechat.desktop
-          - mv share/applications export/share
+          - mv ${app_dir}/entries/{applications,icons} export/share
 
       - type: script
         dest-filename: wechat.sh
         commands:
           - ln -fsn /app/etc/os-release /etc/os-release
           - ln -fsn /app/etc/lsb-release /etc/lsb-release
-          - exec zypak-wrapper /app/extra/lib/wechat/微信 "$@"
+          - exec zypak-wrapper /app/extra/opt/apps/com.qq.weixin/files/wechat "$@"
       - type: file
         path: os-release
       - type: file
@@ -70,12 +75,12 @@ modules:
       - type: extra-data
         filename: wechat.deb
         only-arches: [aarch64]
-        url: "http://archive.kylinos.cn/kylin/partner/pool/wechat_2.0.0_arm64.deb"
-        sha256: 9ebe64eb6f942bf6c092e3f43058eb6f2259424cdfba6f926979bbff222c83bd
-        size: 31889372
+        url: "https://cdn-package-store6.deepin.com/appstore/pool/appstore/c/com.qq.weixin/com.qq.weixin_2.0.0-2_arm64.deb"
+        sha256: eb0c5433a8b10710b56bf09eaae77f3f722b21a8e82dffefb95fca204c1be321
+        size: 31913372
       - type: extra-data
         filename: wechat.deb
         only-arches: [x86_64]
-        url: "http://archive.kylinos.cn/kylin/partner/pool/wechat_2.0.0_amd64.deb"
-        sha256: 4cd12e4cf190d8b3250ce7388223828f86e18da23ac3ba1b39e4c85f41d5b3f0
-        size: 35383312
+        url: "https://cdn-package-store6.deepin.com/appstore/pool/appstore/c/com.qq.weixin/com.qq.weixin_2.0.0-2_amd64.deb"
+        sha256: f57bdd9f4212aebfdebe26ec156851eb28fe3ee0f3175dff32298676d222934f
+        size: 35402416
