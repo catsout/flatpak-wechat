@@ -1,0 +1,76 @@
+app-id: com.tencent.weixin
+base: org.electronjs.Electron2.BaseApp
+base-version: '21.08'
+runtime: org.freedesktop.Platform
+runtime-version: '21.08'
+sdk: org.freedesktop.Sdk
+separate-locales: false
+command: weixin
+finish-args:
+- --share=ipc
+- --socket=x11
+- --socket=wayland
+- --socket=pulseaudio
+- --device=dri
+- --share=network
+- --persist=.pki
+- --filesystem=xdg-documents:ro
+- --filesystem=xdg-download
+- --talk-name=org.freedesktop.Notifications
+- --talk-name=org.kde.StatusNotifierWatcher
+- --talk-name=com.canonical.AppMenu.Registrar
+
+modules:
+  - name: weixin
+    buildsystem: simple
+    build-commands:
+      - cp -a license /app/license
+      - install -D apply_extra /app/bin/
+      - install -D weixin.sh /app/bin/weixin
+      - install -D /usr/bin/desktop-file-edit -t /app/bin/
+      - install -D /usr/bin/ar /app/bin/
+      - ARCH_TRIPLE=$(gcc --print-multiarch) &&
+        cp /usr/lib/${ARCH_TRIPLE}/libbfd-*.so /app/lib
+    sources:
+      - type: script
+        dest-filename: apply_extra
+        commands:
+          - ar x *.deb $(ar t *.deb|grep data)
+          - tar -xf data.* && rm *.deb data.*
+          - mv usr/lib .
+          - mv usr export
+          - sed -i 
+            -E 's:\x23\x79\x7f\x7e(\x23\x60\x65\x6e):\x23\x6d\x7c\x7c\1:' 
+            opt/apps/com.tencent.weixin/files/weixin/resources/app/packages/alita/libs/lib/libweixin_alita.so
+          - FLATPAK_ID=com.tencent.weixin
+          - desktop-file-edit 
+            --set-icon="$FLATPAK_ID" 
+            --set-key="Exec" --set-value="weixin %U" 
+            --set-key="StartupWMClass" --set-value="weixin" 
+            export/share/applications/*.desktop
+          - rename "weixin" "$FLATPAK_ID" 
+            export/share/icons/hicolor/*/apps/*.png 
+            export/share/applications/*.desktop
+
+      - type: script
+        dest-filename: weixin.sh
+        commands:
+          - set -e
+          - mkdir -p /var/lib
+          - ln -fsn /app/license/{os,lsb}-release -t /etc
+          - ln -fsn /app/license/var/uos* -t /var
+          - ln -fsn /app/license/var/lib/uos* -t /var/lib
+          - export TMPDIR=$XDG_RUNTIME_DIR/app/$FLATPAK_ID
+          - app_dir=/app/extra/opt/apps/com.tencent.weixin/files/weixin
+          - exec zypak-wrapper ${app_dir}/weixin "$@"
+
+      - type: dir
+        path: license
+        dest: license
+
+      - type: extra-data
+        filename: weixin.deb
+        only-arches: [x86_64]
+        url: https://home-store-packages.uniontech.com/appstore/pool/appstore/c/com.tencent.weixin/com.tencent.weixin_2.1.1_amd64.deb
+        sha256: e9ff9adebda106bcf9d3b5b6fcabc307ad8eedf6ad67e1a0ff5a8c69e2b03542 
+        size: 109996496
