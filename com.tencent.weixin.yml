@@ -25,12 +25,12 @@ modules:
     buildsystem: simple
     build-commands:
       - cp -a license /app/license
-      - install -D apply_extra /app/bin/
+      - install -D apply_extra -t /app/bin
       - install -D weixin.sh /app/bin/weixin
-      - install -D /usr/bin/desktop-file-edit -t /app/bin/
-      - install -D /usr/bin/ar /app/bin/
+      - install -D /usr/bin/desktop-file-edit -t /app/bin
+      - install -D /usr/bin/ar -t /app/bin
       - ARCH_TRIPLE=$(gcc --print-multiarch) &&
-        cp /usr/lib/${ARCH_TRIPLE}/libbfd-*.so /app/lib
+        install -D /usr/lib/${ARCH_TRIPLE}/libbfd-*.so -t /app/lib
     sources:
       - type: script
         dest-filename: apply_extra
@@ -39,6 +39,7 @@ modules:
           - tar -xf data.* && rm *.deb data.*
           - mv usr/lib .
           - mv usr export
+          # /usr to /app
           - sed -i 
             -E 's:\x23\x79\x7f\x7e(\x23\x60\x65\x6e):\x23\x6d\x7c\x7c\1:' 
             opt/apps/com.tencent.weixin/files/weixin/resources/app/packages/alita/libs/lib/libweixin_alita.so
