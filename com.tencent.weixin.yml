@@ -24,6 +24,8 @@ modules:
   - name: weixin
     buildsystem: simple
     build-commands:
+      - mkdir -p /app/lib
+      - ln -s /app/extra/lib/license -t /app/lib
       - cp -a license /app/license
       - install -D apply_extra -t /app/bin
       - install -D weixin.sh /app/bin/weixin
@@ -41,8 +43,8 @@ modules:
           - mv usr export
           # /usr to /app
           - sed -i 
-            -E 's:\x23\x79\x7f\x7e(\x23\x60\x65\x6e):\x23\x6d\x7c\x7c\1:' 
-            opt/apps/com.tencent.weixin/files/weixin/resources/app/packages/alita/libs/lib/libweixin_alita.so
+            -e 's:\x29\x73\x75\x74:\x29\x67\x76\x76:'
+            opt/apps/com.tencent.weixin/files/weixin/resources/app/packages/alita/libs/lib/libwechat_alita.so
           - FLATPAK_ID=com.tencent.weixin
           - desktop-file-edit 
             --set-icon="$FLATPAK_ID" 
