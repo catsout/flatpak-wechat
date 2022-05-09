@@ -74,6 +74,6 @@ modules:
       - type: extra-data
         filename: weixin.deb
         only-arches: [x86_64]
-        url: https://home-store-packages.uniontech.com/appstore/pool/appstore/c/com.tencent.weixin/com.tencent.weixin_2.1.1_amd64.deb
-        sha256: e9ff9adebda106bcf9d3b5b6fcabc307ad8eedf6ad67e1a0ff5a8c69e2b03542 
-        size: 109996496
+        url: https://home-store-packages.uniontech.com/appstore/pool/appstore/c/com.tencent.weixin/com.tencent.weixin_2.1.3_amd64.deb
+        sha256: 5b77245566e6829c2b223b04173f34c1c37ce7709d22ed4d8a24757338cfb0a3
+        size: 151011528
