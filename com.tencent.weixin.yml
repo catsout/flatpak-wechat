@@ -16,6 +16,8 @@ finish-args:
 - --persist=.pki
 - --filesystem=xdg-documents:ro
 - --filesystem=xdg-download
+- --filesystem=xdg-pictures:ro
+- --filesystem=xdg-videos:ro
 - --talk-name=org.freedesktop.Notifications
 - --talk-name=org.kde.StatusNotifierWatcher
 - --talk-name=com.canonical.AppMenu.Registrar
